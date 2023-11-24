@@ -1,20 +1,28 @@
 # Press the green button in the gutter to run the script.
 # from Puzzles import pickingNumbers
+import socket
+
+# a-bC-dEf=ghIj!!
+# j-Ih-gfE=dCba!!
+#
+# ab-cd
+# dc-ba
 import collections
 
 from Puzzles import firstMissingPositive
 
 
 # letters = []
+# characters = [chr(c) for c in range(ord('a'), ord('z') + 1)]
 # for letter_code in range(ord('A'), ord('Z') + 1):
 #     letter = chr(letter_code)
 #     letters.append(letter)
 # Now the 'letters' list contains letters A to Z
 
 # Array Combination
-def ArrayMergeDifferentLengths(nums1: list[int], nums2: list[int]) -> list[int]:
-    result = [nums1 + nums2]
-    res = list(sorted(result))
+def ArrayMergeDifferentLengths(self, nums1: list[int], nums2: list[int]) -> list[int]:
+    result = nums1 + nums2
+    res = sorted(result)
     return res
 
 
@@ -22,12 +30,15 @@ def ArrayMergeDifferentLengths(nums1: list[int], nums2: list[int]) -> list[int]:
 def findMedianSortedArrays(self, nums1: list[int], nums2: list[int]) -> float:
     # the two arrays are of different sizes m,n.
     result = 0.0
-    num3 = ArrayMergeDifferentLengths(nums1, nums2)
+    num3 = self.ArrayMergeDifferentLengths(nums1, nums2)
     # if num3 is even
     if len(num3) % 2 == 0:
-        result = (num3[(len(num3) / 2)] + num3[((len(num3) / 2) + 1)]) / 2
+        temp = int(len(num3) / 2) - 1
+        temp2 = temp + 1
+        result = float((num3[temp] + num3[temp2]) / 2)
     if len(num3) % 2 != 0:
-        result = (num3[(len(num3) - 1 / 2) + 1])
+        temp = int((len(num3) - 1) / 2)
+        result = float(num3[temp])
     return result
 
 
@@ -37,6 +48,7 @@ def weightedUniformStrings(s, queries):
     return result
 
 
+# valid brackets. Determining the validity of opening and closing brackets.
 def isValid(self, s):
     # Create a pair of opening and closing parenthesis...
     opcl = dict(('()', '[]', '{}'))
@@ -52,7 +64,7 @@ def isValid(self, s):
         elif len(stack) == 0 or idx != opcl[stack.pop()]:
             return False
     # At last, we check if the stack is empty or not... If the stack is empty it means every opened parenthesis is
-    # being closed and we can return true, otherwise we return false...
+    # being closed, and we can return true, otherwise we return false...
     return len(stack) == 0
 
 
@@ -133,6 +145,7 @@ def isPowerOfTwo(self, n: int) -> bool:
     return n & (n - 1) == 0
 
 
+# 2D array sorting
 def two_d_arr_sort(a):
     answer = []
     ans1 = []
@@ -191,12 +204,41 @@ def findDisappearedNumbers(nums):
     return res
 
 
+def ping_public_ip():
+    # port =80
+    port = 443
+    ip = "35.168.80.219"
+    try:
+        socket.create_connection((ip, port))
+        print("Server is reachable")
+    except ConnectionError:
+        print("Server is not reachable")
+
+
+def first_non_repeating_letter(s: str) -> str:
+    if len(s) == 1:
+        return s
+    if len(s) == 0 or s == "":
+        return ""
+    s_lower = s.lower()
+
+    char_count = {}
+
+    for char in s_lower:
+        if char in char_count:
+            char_count[char] += 1
+        else:
+            char_count[char] = 1
+
+    for char in s:
+        if char_count[s_lower[s.index(char)]] == 1:
+            return char
+
+            # Return an empty string if all characters are repeated
+    return ""
+
+
 if __name__ == '__main__':
-    # sort_test, ftest = [["Rachel", -50], ["Mawer", -50], ["Sheen", -50], ["Shaheen", 51]], "xxxXX, xxXxx"
-    # n_test3 = n_test1[1:4:1][::-1]
-    cipher = "xxuuidhr"
-    word = "abc"
-    arr1 = [1, 2]
-    arr2 = [3, 4]
-    v = ArrayMergeDifferentLengths(arr1, arr2)
-    print(v)
+    ping_public_ip()
+
+# a = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
