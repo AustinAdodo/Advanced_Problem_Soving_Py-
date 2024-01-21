@@ -236,7 +236,6 @@ def first_non_repeating_letter(s: str) -> str:
     return ""
 
 
-
 def all_char_unique(s: str) -> bool:
     seen_chars = set()
     for char in s:
