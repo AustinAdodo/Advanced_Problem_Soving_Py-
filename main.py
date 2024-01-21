@@ -50,9 +50,7 @@ def weightedUniformStrings(s, queries):
 
 # valid brackets. Determining the validity of opening and closing brackets.
 def isValid(self, s):
-    # Create a pair of opening and closing parenthesis...
     opcl = dict(('()', '[]', '{}'))
-    # Create stack data structure...
     stack = []
     # Traverse each character in input string...
     for idx in s:
@@ -238,7 +236,49 @@ def first_non_repeating_letter(s: str) -> str:
     return ""
 
 
+import collections
+
+
+def all_char_unique(s: str) -> bool:
+    seen_chars = set()
+    for char in s:
+        if char in seen_chars:
+            return False
+        seen_chars.add(char)
+    return True
+
+
+def is_convergent_on(compare: str, existing: dict) -> bool:
+    sorted_dict = dict(sorted(existing.items(), key=lambda item: len(item[0]), reverse=True))
+    return True if len(compare) < len(list(sorted_dict.keys())[0]) else False
+
+
+def lengthOfLongestSubstring(s: str) -> int:
+    dict1 = collections.defaultdict(int)
+    s1 = [str(i) for i in s]
+    if all(char == s1[0] for char in s1):
+        return 1
+    j = 0
+    for i in range(len(s)):
+        for j in range(i, len(s)):
+            substring = s[i:j + 1]
+            if all_char_unique(substring):
+                dict1[substring] = dict1.get(substring, 0) + 1
+            # if i > len(s) / 2 and is_convergent_on(s[i:j + 1], dict1):
+            #     break
+
+        # filtered_dict = dict(filter(lambda x: x[1] == 1, dict1.items()))
+    sorted_dict = dict(sorted(dict1.items(), key=lambda item: len(item[0])))
+    count = 0 if len(list(sorted_dict.items())) == 0 else len(list(sorted_dict.keys())[-1]) \
+        if len(list(sorted_dict.keys())) > 1 else len(list(sorted_dict.keys())[0])
+    return count
+
+
 if __name__ == '__main__':
-    ping_public_ip()
+    print(lengthOfLongestSubstring('hijklmnopqrstuvwxyzABCDEFGHIJKL'
+                                   'MNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123'
+                                   '456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyz'
+                                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01'
+                                   '23456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'))
 
 # a = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
