@@ -1,13 +1,8 @@
 # Press the green button in the gutter to run the script.
 # from Puzzles import pickingNumbers
 import socket
-
-# a-bC-dEf=ghIj!!
-# j-Ih-gfE=dCba!!
-#
-# ab-cd
-# dc-ba
 import collections
+from typing import List
 
 from Puzzles import firstMissingPositive
 
@@ -18,13 +13,6 @@ from Puzzles import firstMissingPositive
 #     letter = chr(letter_code)
 #     letters.append(letter)
 # Now the 'letters' list contains letters A to Z
-
-# Array Combination
-def ArrayMergeDifferentLengths(self, nums1: list[int], nums2: list[int]) -> list[int]:
-    result = nums1 + nums2
-    res = sorted(result)
-    return res
-
 
 # median of two combined arrays of equal length.
 def findMedianSortedArrays(self, nums1: list[int], nums2: list[int]) -> float:
@@ -245,37 +233,213 @@ def all_char_unique(s: str) -> bool:
     return True
 
 
-def is_convergent_on(compare: str, existing: dict) -> bool:
-    sorted_dict = dict(sorted(existing.items(), key=lambda item: len(item[0]), reverse=True))
-    return True if len(compare) < len(list(sorted_dict.keys())[0]) else False
-
-
 def lengthOfLongestSubstring(s: str) -> int:
-    dict1 = collections.defaultdict(int)
-    s1 = [str(i) for i in s]
-    if all(char == s1[0] for char in s1):
+    """
+             sliding Window has been utilised.
+             """
+    if len(s) > 1 and all(char == s[0] for char in s):
         return 1
-    j = 0
-    for i in range(len(s)):
-        for j in range(i, len(s)):
-            substring = s[i:j + 1]
-            if all_char_unique(substring):
-                dict1[substring] = dict1.get(substring, 0) + 1
-            # if i > len(s) / 2 and is_convergent_on(s[i:j + 1], dict1):
-            #     break
+    if s == "" or not s:
+        return 0
+    char_index_map = {}
+    max_length = 0
+    start_index = 0
+    for end_index, char in enumerate(s):
+        if char in char_index_map and char_index_map[char] >= start_index:
+            start_index = char_index_map[char] + 1
+        char_index_map[char] = end_index
+        max_length = max(max_length, end_index - start_index + 1)
+    return max_length
 
-        # filtered_dict = dict(filter(lambda x: x[1] == 1, dict1.items()))
-    sorted_dict = dict(sorted(dict1.items(), key=lambda item: len(item[0])))
-    count = 0 if len(list(sorted_dict.items())) == 0 else len(list(sorted_dict.keys())[-1]) \
-        if len(list(sorted_dict.keys())) > 1 else len(list(sorted_dict.keys())[0])
-    return count
+
+def are_indexes_adjacent(arr_input: []) -> bool:
+    new_arr = [x for x in arr_input if x >= 1]
+    element2 = new_arr[1]
+    element1 = new_arr[0]
+    index1 = arr_input.index(element1)
+    index2 = arr_input.index(element2)
+    if element1 != element2:
+        return abs(index1 - index2) == 1
+    second_occurrence_index = arr_input.index(element2, index1 + 1)
+    return abs(second_occurrence_index - index2) == 1
+
+
+def trap(height: list[int]) -> int:
+    """
+             Approach:  len(height) < 3 return 0 because it takes at least
+             2 walls and a pit to store water.
+             while (a >= 1 for a in height) >= 2 sum of the walls with height > 1 when counted are more than 2
+
+             Ensure heights of 1 unit or more are more than 1 in number and if 2 are not consecutive
+    """
+    result = wall = temp = 0
+    if all(x == height[0] for x in height):
+        return 0
+    segregated_heights = [a for a in height if a >= 1]
+    heights_more_than_or_eq_1unit = len(segregated_heights)
+    min_height_greater_than_zero = min(segregated_heights)
+    if len(height) < 3:
+        return 0
+    # handle all levels
+    while heights_more_than_or_eq_1unit >= 2:
+        wall = temp = 0
+        for i, e in enumerate(height):
+            if e > 0 and wall == 0:
+                wall = min_height_greater_than_zero
+                continue
+            if wall >= 1 and e == 0:
+                temp += min_height_greater_than_zero
+            if wall >= 1 and e > 0:
+                result += temp
+                temp = 0
+        # move to the next level using the smallest number in the array as reference
+        height = [a - min_height_greater_than_zero if a > 0 else 0 for a in height]
+        # proper heights
+        segregated_heights = [a for a in height if a >= 1]
+        heights_more_than_or_eq_1unit = len(segregated_heights)
+        min_height_greater_than_zero = min(segregated_heights) if len(segregated_heights) > 1 else 0
+        # heights of 1 unit or more are more than 1 in number and if 2 are not consecutive
+        if heights_more_than_or_eq_1unit == 2 and are_indexes_adjacent(height):
+            break
+    return result
+
+
+def trap2(height: List[int]) -> int:
+    if len(height) <= 2:
+        return 0
+
+    ans = 0
+    i, j = 1, len(height) - 1
+    lmax, rmax = height[0], height[-1]
+
+    while i <= j:
+        # Update left and right maximum for the current positions
+        if height[i] > lmax:
+            lmax = height[i]
+        if height[j] > rmax:
+            rmax = height[j]
+
+        # Fill water up to lmax level for index i and move i to the right
+        if lmax <= rmax:
+            ans += lmax - height[i]
+            i += 1
+        # Fill water up to rmax level for index j and move j to the left
+        else:
+            ans += rmax - height[j]
+            j -= 1
+
+    return ans
+
+
+def get_smallest_substring(str1, str2):
+    # I need to maintain time and space complexity On
+    # using sliding rail is my best option
+    from collections import Counter
+    required = Counter(str2)
+    required_chars = len(required)
+
+    left = 0
+    right = 0
+    formed = 0
+    window_counts = {}
+    min_length = float('inf')
+    min_window = (0, 0)
+
+    while right < len(str1):
+        char = str1[right]
+        window_counts[char] = window_counts.get(char, 0) + 1
+        if char in required and window_counts[char] == required[char]:
+            formed += 1
+        while left <= right and formed == required_chars:
+            char = str1[left]
+            if (right - left + 1) < min_length:
+                min_length = right - left + 1
+                min_window = (left, right)
+            window_counts[char] -= 1
+            if char in required and window_counts[char] < required[char]:
+                formed -= 1
+            left += 1
+        right += 1
+
+    if min_length == float('inf'):
+        return ""
+    else:
+        return str1[min_window[0]:min_window[1] + 1]
+
+
+def get_smallest_substring2(str1, str2):
+    if len(str2) > len(str1):
+        return ""
+    checker = dict.fromkeys(str2, False)
+    arr = []
+    string_checker = ""
+    compared_length = len(str2)
+    l = len(str1)
+    start = 0
+    while l - start >= compared_length:
+        for char in range(start, l):
+            if all(value is True for value in checker.values()):
+                break
+            else:
+                if str1[char] in checker and checker[str1[char]] is False:
+                    checker[str1[char]] = True
+                    string_checker += str1[char]
+                else:
+                    string_checker += str1[char]
+        string_checker.strip()
+        if all(element in string_checker for element in str2):
+            arr.append(string_checker)
+        checker = dict.fromkeys(str2, False)
+        string_checker = ""
+        start += 1
+
+    min_length = min(len(x) for x in arr)
+    return [x for x in arr if len(x) == min_length][0]
+
+
+def integer_from_string(input_string):
+    input_string = input_string.strip()
+
+    if not input_string:
+        return 0
+
+    sign = 1
+    start = 0
+
+    if input_string[0] == '-':
+        sign = -1
+        start = 1
+    elif input_string[0] == '+':
+        start = 1
+
+    num_str = ''
+    for char in input_string[start:]:
+        if char.isdigit():
+            num_str += char
+        else:
+            break
+
+    if not num_str:
+        return 0
+
+    result = sign * int(num_str)
+
+    # Ensure the result is within the 32-bit signed integer range
+    if result < -2147483648:
+        return -2147483648
+    if result > 2147483647:
+        return 2147483647
+
+    return result
 
 
 if __name__ == '__main__':
-    print(lengthOfLongestSubstring('hijklmnopqrstuvwxyzABCDEFGHIJKL'
-                                   'MNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123'
-                                   '456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyz'
-                                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01'
-                                   '23456789hijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'))
+    # print(get_smallest_substring("ADOBECODEBANC", "ABC"))  # Output: "BANC"
+    # print(get_smallest_substring("geeksforgeeks", "ork"))  # Output: "ksfor"
+    # print(get_smallest_substring("a", "a"))  # Output: "a"
+    # print(get_smallest_substring("a", "aa"))  # Output: ""
 
-# a = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
+    print(get_smallest_substring2("ADOBECODEBANC", "ABC"))  # Output: "BANC"
+    print(get_smallest_substring2("geeksforgeeks", "ork"))  # Output: "ksfor"
+    print(get_smallest_substring2("a", "a"))  # Output: "a"
+    print(get_smallest_substring2("a", "aa"))  # Output: ""
